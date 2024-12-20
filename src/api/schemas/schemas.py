@@ -1,11 +1,12 @@
 from pydantic import BaseModel
+from datetime import date
 
 
 class Base(BaseModel):
     pass
 
 
-class Top100Model(Base):
+class Repo(Base):
     repo: str           # название репозитория
     owner: str          # владелец репозитория
     position_cur: int   # текущая позиция в топе
@@ -17,8 +18,7 @@ class Top100Model(Base):
     language: str       # язык
 
 
-class ActivityModel(Base):
-    date: Date
+class Activity(Base):
+    date: date
     commits: int        # количество коммитов за конкретный день
     authors: list[str]  # список разработчиков, которые выполняли коммиты
-
