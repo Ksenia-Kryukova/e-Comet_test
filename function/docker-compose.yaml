@@ -1,0 +1,38 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://maslova:maslova_pw@db:5432/github_data
+    depends_on:
+      - db
+    networks:
+      - app-network
+  parser:
+    build:
+      context: .
+      dockerfile: Dockerfile.parser
+    environment:
+      - DATABASE_URL=postgresql://maslova:maslova_pw@db:5432/github_data
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: maslova
+      POSTGRES_PASSWORD: maslova_pw
+      POSTGRES_DB: github_data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
