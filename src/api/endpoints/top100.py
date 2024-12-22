@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 
-from db.connection import get_db
-from api.schemas.schemas import Repo
+from src.db.connection import get_db
+from src.api.schemas.schemas import Repo
 
 
 router = APIRouter(prefix="/api/repos", tags=["Repositories"])
@@ -9,8 +9,16 @@ router = APIRouter(prefix="/api/repos", tags=["Repositories"])
 
 @router.get("/top100", response_model=list[Repo])
 async def get_top100(
-    order_by: str = Query("stars", regex="^(stars|forks|watchers|open_issues)$", description="Поле для сортировки"),
-    direction: str = Query("desc", regex="^(asc|desc)$", description="Направление сортировки"),
+    order_by: str = Query(
+        "stars",
+        regex="^(stars|forks|watchers|open_issues)$",
+        description="Поле для сортировки"
+    ),
+    direction: str = Query(
+        "desc",
+        regex="^(asc|desc)$",
+        description="Направление сортировки"
+    ),
     db=Depends(get_db)
 ):
     '''Отображение топ 100 публичных репозиториев из PostgresSQL.

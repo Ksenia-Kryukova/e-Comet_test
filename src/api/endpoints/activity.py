@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from db.connection import get_db
 
-from api.schemas.schemas import Activity
+from src.db.connection import get_db
+from src.api.schemas.schemas import Activity
 
 
 router = APIRouter(prefix="/api/repos", tags=["Activity"])
@@ -20,12 +20,15 @@ async def get_commit_activity(
     query = """
         SELECT date, commits, authors
         FROM activity
-        WHERE repo_id = (SELECT id FROM top100 WHERE repo = $1 AND owner = $2)
+        WHERE repo = (SELECT repo FROM top100 WHERE repo = $1 AND owner = $2)
             AND date BETWEEN $3 AND $4
         ORDER BY date ASC
     """
     async with db.acquire() as connection:
         rows = await connection.fetch(query, repo, owner, since, until)
     if not rows:
-        raise HTTPException(status_code=404, detail="No activity found for the given repository and period")
+        raise HTTPException(
+            status_code=404,
+            detail="No activity found for the given repository and period"
+        )
     return [dict(row) for row in rows]
