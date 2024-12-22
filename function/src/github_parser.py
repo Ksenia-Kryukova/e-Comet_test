@@ -3,8 +3,7 @@ import psycopg2
 from psycopg2 import sql
 from datetime import datetime, timedelta
 
-from src.core.config import settings
-
+from core.config import settings
 
 GITHUB_API_URL = "https://api.github.com"
 TOKEN = settings.GITHUB_TOKEN
@@ -52,6 +51,11 @@ def parse_and_save():
         port=settings.DB_PORT
     )
 
+    with connection.cursor() as cursor:
+        cursor.execute("TRUNCATE TABLE top100;")
+        cursor.execute("TRUNCATE TABLE activity;")
+        connection.commit()
+        
     top_repos = fetch_top_repositories()
     for i, repo in enumerate(top_repos, start=1):
         repo_data = {
@@ -71,7 +75,7 @@ def parse_and_save():
         until = datetime.now().isoformat()
         commits, authors = fetch_activity(
             repo["owner"]["login"],
-            repo["full_name"],
+            repo["name"],
             since,
             until
         )
@@ -84,3 +88,7 @@ def parse_and_save():
         save_to_db(activity_data, "activity", connection)
 
     connection.close()
+
+
+if __name__ == "__main__":
+    parse_and_save()
